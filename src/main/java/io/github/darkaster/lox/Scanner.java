@@ -101,6 +101,16 @@ public class Scanner {
                 if (matchNext('/')) {
                     // A comment goes until the end of the line.
                     while (peek() != '\n' && !isAtEnd()) advance();
+                } else if (matchNext('*')) {
+                    while (peek() != '*' && peekNext() != '/' && !isAtEnd()) {
+                        if (peek() == '\n') line++;
+                        advance();
+                    }
+                    if (isAtEnd()) Lox.error(line, "Unclosed comment");
+                    else {
+                        advance(); // consume *
+                        advance(); // consume /
+                    }
                 } else {
                     addToken(SLASH);
                 }
