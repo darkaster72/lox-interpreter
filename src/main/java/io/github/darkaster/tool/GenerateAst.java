@@ -35,7 +35,6 @@ public class GenerateAst {
 
         // The base accept() method.
         writer.println("\t\tabstract <R> R accept(Visitor<R> visitor);");
-        
         // The AST classes.
         for (String type : types) {
             String className = type.split(":")[0].trim();
