@@ -6,7 +6,10 @@ import static io.github.darkaster.lox.TokenType.*;
 
 
 /*
- * Parser handles the following cases
+ * Parser handles the syntax grammar
+ * this is a “recursive descent parser”  because it walks down the grammar.
+ * In a top-down parser, you reach the lowest-precedence expressions first because
+ * they may in turn contain subexpressions of higher precedence.
  *
  * expression     → equality ;
  * equality       → comparison ( ( "!=" | "==" ) comparison )* ;
