@@ -4,6 +4,18 @@ import java.util.List;
 
 import static io.github.darkaster.lox.TokenType.*;
 
+
+/*
+ * Parser handles the following cases
+ *
+ * expression     → equality ;
+ * equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+ * comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+ * term           → factor ( ( "-" | "+" ) factor )* ;
+ * factor         → unary ( ( "/" | "*" ) unary )* ;
+ * unary          → ( "!" | "-" ) unary | primary ;
+ * primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+ * */
 class Parser {
     private final List<Token> tokens;
     private int current = 0;
@@ -12,6 +24,7 @@ class Parser {
         this.tokens = tokens;
     }
 
+    //    Given a valid sequence of tokens, produce a corresponding syntax tree.
     Expr parse() {
         try {
             return expression();
