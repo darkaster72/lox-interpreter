@@ -55,49 +55,21 @@ public class Scanner {
         char c = advance();
 
         switch (c) {
-            case '(':
-                addToken(LEFT_PAREN);
-                break;
-            case ')':
-                addToken(RIGHT_PAREN);
-                break;
-            case '{':
-                addToken(LEFT_BRACE);
-                break;
-            case '}':
-                addToken(RIGHT_BRACE);
-                break;
-            case ',':
-                addToken(COMMA);
-                break;
-            case '.':
-                addToken(DOT);
-                break;
-            case '-':
-                addToken(MINUS);
-                break;
-            case '+':
-                addToken(PLUS);
-                break;
-            case ';':
-                addToken(SEMICOLON);
-                break;
-            case '*':
-                addToken(STAR);
-                break;
-            case '!':
-                addToken(matchNext('=') ? BANG_EQUAL : BANG);
-                break;
-            case '=':
-                addToken(matchNext('=') ? EQUAL_EQUAL : EQUAL);
-                break;
-            case '<':
-                addToken(matchNext('=') ? LESS_EQUAL : LESS);
-                break;
-            case '>':
-                addToken(matchNext('=') ? GREATER_EQUAL : GREATER);
-                break;
-            case '/':
+            case '(' -> addToken(LEFT_PAREN);
+            case ')' -> addToken(RIGHT_PAREN);
+            case '{' -> addToken(LEFT_BRACE);
+            case '}' -> addToken(RIGHT_BRACE);
+            case ',' -> addToken(COMMA);
+            case '.' -> addToken(DOT);
+            case '-' -> addToken(MINUS);
+            case '+' -> addToken(PLUS);
+            case ';' -> addToken(SEMICOLON);
+            case '*' -> addToken(STAR);
+            case '!' -> addToken(matchNext('=') ? BANG_EQUAL : BANG);
+            case '=' -> addToken(matchNext('=') ? EQUAL_EQUAL : EQUAL);
+            case '<' -> addToken(matchNext('=') ? LESS_EQUAL : LESS);
+            case '>' -> addToken(matchNext('=') ? GREATER_EQUAL : GREATER);
+            case '/' -> {
                 if (matchNext('/')) {
                     // A comment goes until the end of the line.
                     while (peek() != '\n' && !isAtEnd()) advance();
@@ -114,16 +86,12 @@ public class Scanner {
                 } else {
                     addToken(SLASH);
                 }
-                break;
-            case ' ':
-            case '\r':
-            case '\t':
+            }
+            case ' ', '\r', '\t' -> {
                 // Ignore whitespace.
-                break;
-            case '"':
-                string();
-                break;
-            default:
+            }
+            case '"' -> string();
+            default -> {
                 if (isDigit(c)) {
                     number();
                 } else if (isAlpha(c)) {
@@ -131,7 +99,7 @@ public class Scanner {
                 } else {
                     Lox.error(line, "Unexpected character.");
                 }
-                break;
+            }
         }
     }
 
