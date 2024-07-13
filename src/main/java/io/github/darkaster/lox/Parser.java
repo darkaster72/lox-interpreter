@@ -1,5 +1,6 @@
 package io.github.darkaster.lox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.github.darkaster.lox.TokenType.*;
@@ -28,12 +29,13 @@ class Parser {
     }
 
     //    Given a valid sequence of tokens, produce a corresponding syntax tree.
-    Expr parse() {
-        try {
-            return expression();
-        } catch (ParseError error) {
-            return null;
+    List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
+        while (!isAtEnd()) {
+            statements.add(statement());
         }
+
+        return statements;
     }
 
     // syntax grammar
@@ -197,6 +199,24 @@ class Parser {
 
             advance();
         }
+    }
+
+    private Stmt statement() {
+        if (match(PRINT)) return printStatement();
+
+        return expressionStatement();
+    }
+
+    private Stmt expressionStatement() {
+        Expr expr = expression();
+        consume(SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
+    }
+
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
     }
 
     private static class ParseError extends RuntimeException {
