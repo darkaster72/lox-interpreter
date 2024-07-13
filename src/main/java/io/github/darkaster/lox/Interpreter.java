@@ -55,6 +55,12 @@ public class Interpreter implements Expr.Visitor<Object> {
                 if (left instanceof String && right instanceof String) {
                     yield left + (String) right;
                 }
+
+                if (left instanceof String || right instanceof String) {
+                    yield left.toString() + right.toString();
+                }
+
+
                 if (left instanceof Double && right instanceof Double) {
                     yield (Double) left + (Double) right;
                 }
