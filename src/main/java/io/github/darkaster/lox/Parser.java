@@ -12,13 +12,18 @@ import static io.github.darkaster.lox.TokenType.*;
  * In a top-down parser, you reach the lowest-precedence expressions first because
  * they may in turn contain subexpressions of higher precedence.
  *
- * expression     → equality ;
+ * program        → statement* EOF ;
+ * statement      → exprStmt | printStmt ;
+ * exprStmt       → expression ";" ;
+ * printStmt      → "print" expression ";" ;
+ * expression     → assignment ;
+ * assignment     → IDENTIFIER "=" assignment | equality ;
  * equality       → comparison ( ( "!=" | "==" ) comparison )* ;
  * comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
  * term           → factor ( ( "-" | "+" ) factor )* ;
  * factor         → unary ( ( "/" | "*" ) unary )* ;
  * unary          → ( "!" | "-" ) unary | primary ;
- * primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+ * primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
  * */
 class Parser {
     private final List<Token> tokens;
@@ -32,16 +37,55 @@ class Parser {
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
-            statements.add(statement());
+            statements.add(declaration());
         }
 
         return statements;
     }
 
+    private Stmt declaration() {
+        try {
+            if (match(VAR)) return varDeclaration();
+            return statement();
+        } catch (ParseError e) {
+            synchronize();
+            return null;
+        }
+
+    }
+
+    private Stmt varDeclaration() {
+        Token name = consume(IDENTIFIER, "Expect variable name.");
+        Expr initializer = null;
+
+        if (match(EQUAL)) {
+            initializer = expression();
+        }
+
+        return new Stmt.Var(name, initializer);
+    }
+
     // syntax grammar
     // expression → equality ;
     private Expr expression() {
-        return equality();
+        return assignment();
+    }
+
+    private Expr assignment() {
+        Expr expr = equality();
+
+        if (match(EQUAL)) {
+            Token equals = previous();
+            Expr value = assignment();
+
+            if (expr instanceof Expr.Variable variable) {
+                return new Expr.Assign(variable.name, value);
+            }
+
+            throw error(equals, "Invalid assignment target");
+        }
+
+        return expr;
     }
 
     // syntax grammar
@@ -117,7 +161,7 @@ class Parser {
     }
 
     // syntax grammar
-    // primary  → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+    // primary  → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
     private Expr primary() {
         if (match(FALSE)) return new Expr.Literal(false);
         if (match(TRUE)) return new Expr.Literal(true);
@@ -126,6 +170,10 @@ class Parser {
         if (match(STRING, NUMBER)) {
             return new Expr.Literal(previous().literal);
         }
+        if (match(IDENTIFIER)) {
+            return new Expr.Variable(previous());
+        }
+
         if (match(LEFT_PAREN)) {
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after expression.");
