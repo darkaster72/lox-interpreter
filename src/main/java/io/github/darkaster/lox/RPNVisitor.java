@@ -32,6 +32,11 @@ public class RPNVisitor implements Expr.Visitor<String> {
     }
 
     @Override
+    public String visitAssignExpr(Expr.Assign expr) {
+        return "";
+    }
+
+    @Override
     public String visitBinaryExpr(Expr.Binary expr) {
         var sb = new StringBuilder();
         sb.append(expr.left.accept(this));
