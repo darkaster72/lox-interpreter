@@ -5,7 +5,6 @@ import java.util.List;
 
 import static io.github.darkaster.lox.TokenType.*;
 
-
 /*
  * Parser handles the syntax grammar
  * this is a “recursive descent parser”  because it walks down the grammar.
@@ -62,7 +61,7 @@ class Parser {
         if (match(EQUAL)) {
             initializer = expression();
         }
-
+        consume(SEMICOLON, "Expect ';' after variable declaration.");
         return new Stmt.Var(name, initializer);
     }
 

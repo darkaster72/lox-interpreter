@@ -5,6 +5,7 @@ import java.util.Objects;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private Environment environment = new Environment();
+    private boolean isReplMode = false;
 
     void interpret(List<Stmt> statements) {
         try {
@@ -170,6 +171,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         Object value = evaluate(stmt.expression);
         // store the value
+        if (isReplMode) {
+            System.out.println(stringify(value));
+        }
         return null;
     }
 
@@ -183,10 +187,19 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitVarStmt(Stmt.Var stmt) {
         Object value = null;
+
         if (stmt.initializer != null) {
             value = evaluate(stmt.initializer);
         }
         environment.define(stmt.name, value);
+
+        if (isReplMode) {
+            System.out.println(stringify(value));
+        }
         return null;
+    }
+
+    public void setReplMode(boolean isReplMode) {
+        this.isReplMode = isReplMode;
     }
 }
