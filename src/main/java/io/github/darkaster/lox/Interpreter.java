@@ -121,6 +121,21 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Object visitCallExpr(Expr.Call expr) {
+        Object callee = evaluate(expr.callee);
+        List<Object> arguments = expr.arguments.stream().map(this::evaluate).toList();
+
+        if (callee instanceof LoxCallable function) {
+            if (arguments.size() != function.arity()) {
+                throw new RuntimeError(expr.paren, "Expected %d arguments but got %d.".formatted(function.arity(), arguments.size()));
+            }
+            return function.call(this, arguments);
+        }
+
+        throw new RuntimeError(expr.paren, "Can only call functions and classes.");
+    }
+
+    @Override
     public Object visitVariableExpr(Expr.Variable expr) {
         return environment.get(expr.name);
     }
