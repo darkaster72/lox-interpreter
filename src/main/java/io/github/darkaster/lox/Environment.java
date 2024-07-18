@@ -16,7 +16,11 @@ public class Environment {
     }
 
     public void define(Token name, Object value) {
-        values.put(name.lexeme, value);
+        define(name.lexeme, value);
+    }
+
+    public void define(String name, Object value) {
+        values.put(name, value);
     }
 
     void assign(Token name, Object value) {
