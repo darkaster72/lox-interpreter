@@ -12,7 +12,8 @@ import static io.github.darkaster.lox.TokenType.*;
  * they may in turn contain subexpressions of higher precedence.
  *
  * program        → statement* EOF ;
- * statement      → exprStmt | ifStmt | printStmt | block;
+ * statement      → exprStmt | ifStmt | printStmt | block | whileStmt;
+ * whileStmt      → while "(" expression ")" statement;
  * ifStmt         → "if" "(" expression ")" statement ( "else" statement )? ;
  * exprStmt       → expression ";" ;
  * printStmt      → "print" expression ";" ;
@@ -279,9 +280,19 @@ class Parser {
     private Stmt statement() {
         if (match(PRINT)) return printStatement();
         if (match(LEFT_BRACE)) return thenBlock();
+        if (match(WHILE)) return whileStatement();
         if (match(IF)) return ifStatement();
 
         return expressionStatement();
+    }
+
+    private Stmt whileStatement() {
+        consume(LEFT_PAREN, "Expected '(' after 'while'");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expected ')' after 'while' condition");
+        Stmt stmt = statement();
+
+        return new Stmt.While(condition, stmt);
     }
 
     // ifStmt → "if" "(" expression ")" statement ( "else" statement )? ;

@@ -87,7 +87,7 @@ public class Scanner {
                     addToken(SLASH);
                 }
             }
-            case ' ', '\r', '\t' -> {
+            case ' ', '\r', '\t', '\n' -> {
                 // Ignore whitespace.
             }
             case '"' -> string();
