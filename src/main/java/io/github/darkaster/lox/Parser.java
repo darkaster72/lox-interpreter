@@ -12,7 +12,8 @@ import static io.github.darkaster.lox.TokenType.*;
  * they may in turn contain subexpressions of higher precedence.
  *
  * program        → statement* EOF ;
- * statement      → exprStmt | ifStmt | printStmt | block | whileStmt;
+ * statement      → exprStmt | ifStmt | forStmt | printStmt | block | whileStmt;
+ * forStmt        → for "(" (varStmt | expression)? ";" expression? ";" expression? ")" statement;
  * whileStmt      → while "(" expression ")" statement;
  * ifStmt         → "if" "(" expression ")" statement ( "else" statement )? ;
  * exprStmt       → expression ";" ;
@@ -280,10 +281,53 @@ class Parser {
     private Stmt statement() {
         if (match(PRINT)) return printStatement();
         if (match(LEFT_BRACE)) return thenBlock();
+        if (match(FOR)) return forStatement();
         if (match(WHILE)) return whileStatement();
         if (match(IF)) return ifStatement();
 
         return expressionStatement();
+    }
+
+    private Stmt forStatement() {
+        consume(LEFT_PAREN, "Expected '(' after 'for'");
+        Stmt initializer;
+        if (match(SEMICOLON)) {
+            initializer = null;
+        } else if (match(VAR)) {
+            initializer = varDeclaration();
+        } else {
+            initializer = expressionStatement();
+        }
+
+        Expr condition;
+        if (match(SEMICOLON)) {
+            condition = null;
+        } else {
+            condition = expression();
+            consume(SEMICOLON, "Expected ';' after 'for' condition");
+        }
+
+        Expr increment;
+        if (match(RIGHT_PAREN)) {
+            increment = null;
+        } else {
+            increment = expression();
+            consume(RIGHT_PAREN, "Expected ')' after 'for' condition");
+        }
+
+        Stmt body = statement();
+
+        if (increment != null) {
+            body = new Stmt.Block(List.of(body, new Stmt.Expression(increment)));
+        }
+        if (condition == null) condition = new Expr.Literal(true);
+        body = new Stmt.While(condition, body);
+
+        if (initializer != null) {
+            body = new Stmt.Block(List.of(initializer, body));
+        }
+
+        return body;
     }
 
     private Stmt whileStatement() {
