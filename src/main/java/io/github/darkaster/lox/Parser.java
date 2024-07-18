@@ -18,7 +18,9 @@ import static io.github.darkaster.lox.TokenType.*;
  * printStmt      → "print" expression ";" ;
  * block          → "{" declaration* "}" ;
  * expression     → assignment ;
- * assignment     → IDENTIFIER "=" assignment | equality ;
+ * assignment     → IDENTIFIER "=" assignment | logical_or ;
+ * logical_or     → logical_and ("or" logical_and)*;
+ * logical_and    → equality ("and" equality)*;
  * equality       → comparison ( ( "!=" | "==" ) comparison )* ;
  * comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
  * term           → factor ( ( "-" | "+" ) factor )* ;
@@ -73,7 +75,7 @@ class Parser {
     }
 
     private Expr assignment() {
-        Expr expr = equality();
+        Expr expr = or();
 
         if (match(EQUAL)) {
             Token equals = previous();
@@ -86,6 +88,30 @@ class Parser {
             throw error(equals, "Invalid assignment target");
         }
 
+        return expr;
+    }
+
+    // logical_or → logical_and ("or" logical_and)*;
+    private Expr or() {
+        Expr expr = and();
+
+        if (match(OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+        return expr;
+    }
+
+    // logical_and → equality ("and" equality)*;
+    private Expr and() {
+        Expr expr = equality();
+
+        if (match(AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
+        }
         return expr;
     }
 

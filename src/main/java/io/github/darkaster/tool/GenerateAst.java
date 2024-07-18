@@ -19,6 +19,7 @@ public class GenerateAst {
                 "Binary   : Expr left, Token operator, Expr right",
                 "Grouping : Expr expression",
                 "Literal  : Object value",
+                "Logical  : Expr left, Token operator, Expr right",
                 "Unary    : Token operator, Expr right",
                 "Variable : Token name"
         ));
@@ -45,7 +46,7 @@ public class GenerateAst {
         defineVisitor(writer, baseName, types);
 
         // The base accept() method.
-        writer.println("\t\tabstract <R> R accept(Visitor<R> visitor);");
+        writer.println("\t\t\tabstract <R> R accept(Visitor<R> visitor);");
         // The AST classes.
         for (String type : types) {
             String className = type.split(":")[0].trim();
