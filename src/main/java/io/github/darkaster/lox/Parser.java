@@ -19,6 +19,10 @@ import static io.github.darkaster.lox.TokenType.*;
  * exprStmt       → expression ";" ;
  * printStmt      → "print" expression ";" ;
  * block          → "{" declaration* "}" ;
+ * declaration    → funDecl | varDecl | statement ;
+ * funDecl       → "fun" function;
+ * function       → IDENTIFIER "(" parameters? ")" block ;
+ * parameters     → IDENTIFIER ("," IDENTIFIER)* ;
  * expression     → assignment ;
  * assignment     → IDENTIFIER "=" assignment | logical_or ;
  * logical_or     → logical_and ("or" logical_and)*;
@@ -52,6 +56,7 @@ class Parser {
 
     private Stmt declaration() {
         try {
+            if (match(FUN)) return function("function");
             if (match(VAR)) return varDeclaration();
             return statement();
         } catch (ParseError e) {
@@ -59,6 +64,28 @@ class Parser {
             return null;
         }
 
+    }
+
+    private Stmt function(String kind) {
+        Token name = consume(IDENTIFIER, "Expect %s name.".formatted(kind));
+        List<Token> params = new ArrayList<>();
+        consume(LEFT_PAREN, "Expected '(' after '%s' declaration".formatted(kind));
+
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (params.size() >= 255) {
+                    error(peek(), "Can't have more than 255 parameters.");
+                }
+                params.add(consume(IDENTIFIER, "Expect parameter name"));
+            } while (match(COMMA));
+        }
+
+        consume(RIGHT_PAREN, "Expected ')' after parameters");
+
+        consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        List<Stmt> body = block();
+
+        return new Stmt.Function(name, params, body);
     }
 
     private Stmt varDeclaration() {
