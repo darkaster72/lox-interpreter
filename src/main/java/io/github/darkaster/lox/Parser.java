@@ -12,12 +12,13 @@ import static io.github.darkaster.lox.TokenType.*;
  * they may in turn contain subexpressions of higher precedence.
  *
  * program        → statement* EOF ;
- * statement      → exprStmt | ifStmt | forStmt | printStmt | block | whileStmt;
+ * statement      → exprStmt | ifStmt | forStmt | printStmt | block | whileStmt | returnStmt;
  * forStmt        → for "(" (varStmt | expression)? ";" expression? ";" expression? ")" statement;
  * whileStmt      → while "(" expression ")" statement;
  * ifStmt         → "if" "(" expression ")" statement ( "else" statement )? ;
  * exprStmt       → expression ";" ;
  * printStmt      → "print" expression ";" ;
+ * returnStmt     → "return" expression? ";" ;
  * block          → "{" declaration* "}" ;
  * declaration    → funDecl | varDecl | statement ;
  * funDecl       → "fun" function;
@@ -340,8 +341,19 @@ class Parser {
         if (match(FOR)) return forStatement();
         if (match(WHILE)) return whileStatement();
         if (match(IF)) return ifStatement();
+        if (match(RETURN)) return returnStatement();
 
         return expressionStatement();
+    }
+
+    private Stmt returnStatement() {
+        Token token = previous();
+        Expr expr = null;
+        if (!check(SEMICOLON)) {
+            expression();
+        }
+        consume(SEMICOLON, "';' expected after return value");
+        return new Stmt.Return(token, expr);
     }
 
     private Stmt forStatement() {
