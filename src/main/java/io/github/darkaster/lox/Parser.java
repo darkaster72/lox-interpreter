@@ -350,7 +350,7 @@ class Parser {
         Token token = previous();
         Expr expr = null;
         if (!check(SEMICOLON)) {
-            expression();
+            expr = expression();
         }
         consume(SEMICOLON, "';' expected after return value");
         return new Stmt.Return(token, expr);

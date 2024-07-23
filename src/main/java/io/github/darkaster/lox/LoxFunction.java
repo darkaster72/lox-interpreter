@@ -21,6 +21,7 @@ public class LoxFunction implements LoxCallable {
         for (int i = 0; i < arity(); i++) {
             env.define(declaration.param.get(i), arguments.get(i));
         }
+
         try {
             interpreter.executeBlock(declaration.body, env);
         } catch (Return returnValue) {
