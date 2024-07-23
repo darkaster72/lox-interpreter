@@ -227,7 +227,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        LoxCallable function = new LoxFunction(stmt);
+        LoxCallable function = new LoxFunction(stmt, environment);
         environment.define(stmt.name, function);
         return null;
     }
