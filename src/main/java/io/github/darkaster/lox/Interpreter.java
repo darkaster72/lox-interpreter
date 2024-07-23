@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
-    private Environment globals = new Environment();
+    Environment globals = new Environment();
     private Environment environment = globals;
     private boolean isReplMode = false;
 
@@ -202,7 +202,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return null;
     }
 
-    private void executeBlock(List<Stmt> statements, Environment environment) {
+    void executeBlock(List<Stmt> statements, Environment environment) {
         Environment previous = this.environment;
         try {
             this.environment = environment;
@@ -227,6 +227,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
+        LoxCallable function = new LoxFunction(stmt);
+        environment.define(stmt.name, function);
         return null;
     }
 
