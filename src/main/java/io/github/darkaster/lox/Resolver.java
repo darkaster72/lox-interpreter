@@ -143,6 +143,10 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     public Void visitClassStmt(Stmt.Class stmt) {
         declare(stmt.name);
         define(stmt.name);
+
+        for (Stmt.Function method : stmt.functions) {
+            resolveFunction(method, FunctionType.METHOD);
+        }
         return null;
     }
 

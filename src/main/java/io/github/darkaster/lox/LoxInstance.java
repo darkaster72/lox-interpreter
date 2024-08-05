@@ -20,6 +20,10 @@ public class LoxInstance {
         if (map.containsKey(name.lexeme)) {
             return map.get(name.lexeme);
         }
+
+        LoxFunction method = clazz.findMethod(name.lexeme);
+        if (method != null) return method;
+
         throw new RuntimeError(name, "Undefined property '" + name.lexeme + "'.");
     }
 
