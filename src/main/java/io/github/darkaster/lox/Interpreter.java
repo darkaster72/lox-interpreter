@@ -1,12 +1,15 @@
 package io.github.darkaster.lox;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     Environment globals = new Environment();
     private Environment environment = globals;
     private boolean isReplMode = false;
+    private Map<Expr, Integer> locals = new HashMap<>();
 
     Interpreter() {
         globals.define("clock", new LoxCallable() {
@@ -44,7 +47,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
         var value = evaluate(expr.value);
-        environment.assign(expr.name, value);
+
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            environment.assignAt(distance, expr.name, value);
+        } else {
+            globals.assign(expr.name, value);
+        }
+
         return value;
     }
 
@@ -157,6 +167,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
+        return lookupVariable(expr);
+    }
+
+    private Object lookupVariable(Expr.Variable expr) {
+        var distance = locals.get(expr);
+        if (distance != null) {
+            return environment.getAt(distance, expr.name);
+        }
         return environment.get(expr.name);
     }
 
@@ -282,5 +300,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     public void setReplMode(boolean isReplMode) {
         this.isReplMode = isReplMode;
+    }
+
+    public void resolve(Expr expr, int depth) {
+        locals.put(expr, depth);
     }
 }
