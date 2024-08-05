@@ -20,8 +20,9 @@ import static io.github.darkaster.lox.TokenType.*;
  * printStmt      → "print" expression ";" ;
  * returnStmt     → "return" expression? ";" ;
  * block          → "{" declaration* "}" ;
- * declaration    → funDecl | varDecl | statement ;
- * funDecl       → "fun" function;
+ * declaration    → classDecl | funDecl | varDecl | statement ;
+ * classDecl      → "class" IDENTIFIER "{" function* "}"
+ * funDecl        → "fun" function;
  * function       → IDENTIFIER "(" parameters? ")" block ;
  * parameters     → IDENTIFIER ("," IDENTIFIER)* ;
  * expression     → assignment ;
@@ -57,6 +58,7 @@ class Parser {
 
     private Stmt declaration() {
         try {
+            if (match(CLASS)) return classDeclaration();
             if (match(FUN)) return function("function");
             if (match(VAR)) return varDeclaration();
             return statement();
@@ -67,7 +69,21 @@ class Parser {
 
     }
 
-    private Stmt function(String kind) {
+    private Stmt classDeclaration() {
+        Token name = consume(IDENTIFIER, "Identifier expected for class name");
+        consume(LEFT_BRACE, "Expected '{' for class block");
+        List<Stmt.Function> methods = new ArrayList<>();
+
+        while (!(check(RIGHT_BRACE) || isAtEnd())) {
+            methods.add(function("method"));
+        }
+
+        consume(RIGHT_BRACE, "Expected '}' after class block");
+
+        return new Stmt.Class(name, methods);
+    }
+
+    private Stmt.Function function(String kind) {
         Token name = consume(IDENTIFIER, "Expect %s name.".formatted(kind));
         List<Token> params = new ArrayList<>();
         consume(LEFT_PAREN, "Expected '(' after '%s' declaration".formatted(kind));
