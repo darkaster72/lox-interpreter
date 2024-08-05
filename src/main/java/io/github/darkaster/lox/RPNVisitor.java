@@ -5,6 +5,7 @@ package io.github.darkaster.lox;
  * // expr: (1 + 2) * (4 - 3)
  * // result: 1 2 + 4 3 - *
  * */
+
 public class RPNVisitor implements Expr.Visitor<String> {
     public static void main(String[] args) {
 //        (1 + 2) * (4 - 3)
@@ -60,6 +61,16 @@ public class RPNVisitor implements Expr.Visitor<String> {
 
     @Override
     public String visitLogicalExpr(Expr.Logical expr) {
+        return "";
+    }
+
+    @Override
+    public String visitSetExpr(Expr.Set expr) {
+        return "";
+    }
+
+    @Override
+    public String visitGetExpr(Expr.Get expr) {
         return "";
     }
 

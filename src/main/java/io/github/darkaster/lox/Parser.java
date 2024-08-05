@@ -26,7 +26,7 @@ import static io.github.darkaster.lox.TokenType.*;
  * function       → IDENTIFIER "(" parameters? ")" block ;
  * parameters     → IDENTIFIER ("," IDENTIFIER)* ;
  * expression     → assignment ;
- * assignment     → IDENTIFIER "=" assignment | logical_or ;
+ * assignment     → (call ".")? IDENTIFIER "=" assignment | logical_or ;
  * logical_or     → logical_and ("or" logical_and)*;
  * logical_and    → equality ("and" equality)*;
  * equality       → comparison ( ( "!=" | "==" ) comparison )* ;
@@ -34,7 +34,7 @@ import static io.github.darkaster.lox.TokenType.*;
  * term           → factor ( ( "-" | "+" ) factor )* ;
  * factor         → unary ( ( "/" | "*" ) unary )* ;
  * unary          → ( "!" | "-" ) unary | call ;
- * call           → primary ( "(" arguments? ")")*;
+ * call           → primary ( "(" arguments? ")" | "." IDENTIFIER)*;
  * arguments      → expression, ("," expression)*
  * primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
  * */
@@ -122,6 +122,7 @@ class Parser {
         return assignment();
     }
 
+    //  assignment → (call ".")? IDENTIFIER "=" assignment | logical_or ;
     private Expr assignment() {
         Expr expr = or();
 
@@ -131,6 +132,8 @@ class Parser {
 
             if (expr instanceof Expr.Variable variable) {
                 return new Expr.Assign(variable.name, value);
+            } else if (expr instanceof Expr.Get getter) {
+                return new Expr.Set(getter.object, getter.name, value);
             }
 
             throw error(equals, "Invalid assignment target");
@@ -235,12 +238,16 @@ class Parser {
         return call();
     }
 
+    //  call → primary ( "(" arguments? ")" | "." IDENTIFIER)*;
     private Expr call() {
         Expr expr = primary();
 
         while (true) {
             if (match(LEFT_PAREN)) {
                 expr = finishCall(expr);
+            } else if (match(DOT)) {
+                var name = consume(IDENTIFIER, "Expected 'identifier' after '.'");
+                expr = new Expr.Get(expr, name);
             } else break;
         }
 

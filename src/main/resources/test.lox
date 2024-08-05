@@ -5,3 +5,9 @@ class DevonshireCream {
 }
 
 print DevonshireCream; // Prints "DevonshireCream".
+
+fun test() {
+
+}
+
+test()();

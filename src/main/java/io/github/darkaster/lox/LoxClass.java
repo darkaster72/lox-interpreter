@@ -1,6 +1,8 @@
 package io.github.darkaster.lox;
 
-public class LoxClass {
+import java.util.List;
+
+public class LoxClass implements LoxCallable {
     private final Token name;
 
     public LoxClass(Token name) {
@@ -9,5 +11,15 @@ public class LoxClass {
 
     public String toString() {
         return name.lexeme;
+    }
+
+    @Override
+    public int arity() {
+        return 0;
+    }
+
+    @Override
+    public Object call(Interpreter interpreter, List<Object> arguments) {
+        return new LoxInstance(this);
     }
 }
