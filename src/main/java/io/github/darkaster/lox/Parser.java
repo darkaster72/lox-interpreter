@@ -276,12 +276,12 @@ class Parser {
         if (match(TRUE)) return new Expr.Literal(true);
         if (match(NIL)) return new Expr.Literal(null);
 
-        if (match(STRING, NUMBER)) {
-            return new Expr.Literal(previous().literal);
-        }
-        if (match(IDENTIFIER)) {
-            return new Expr.Variable(previous());
-        }
+        if (match(STRING, NUMBER)) return new Expr.Literal(previous().literal);
+
+        if (match(THIS)) return new Expr.This(previous());
+
+        if (match(IDENTIFIER)) return new Expr.Variable(previous());
+
 
         if (match(LEFT_PAREN)) {
             Expr expr = expression();
