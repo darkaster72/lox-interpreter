@@ -161,7 +161,11 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         scopes.peek().put("this", true);
 
         for (Stmt.Function method : stmt.functions) {
-            resolveFunction(method, FunctionType.METHOD);
+            FunctionType declaration = FunctionType.METHOD;
+
+            if (method.name.lexeme.equals("init")) declaration = FunctionType.INITIALIZER;
+
+            resolveFunction(method, declaration);
         }
 
         endScope();
@@ -234,12 +238,17 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     public Void visitReturnStmt(Stmt.Return stmt) {
         if (currentFunction == FunctionType.NONE)
             Lox.error(stmt.keyword, "Return statement cannot be outside function");
-        if (stmt.value != null) resolve(stmt.value);
+
+        if (stmt.value != null) {
+            if (currentFunction == FunctionType.INITIALIZER)
+                Lox.error(stmt.keyword, "can't return a value from initializer");
+            resolve(stmt.value);
+        }
         return null;
     }
 
     private enum FunctionType {
-        NONE, FUNCTION, METHOD,
+        NONE, FUNCTION, INITIALIZER, METHOD,
     }
 
     private enum ClassType {

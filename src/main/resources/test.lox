@@ -1,7 +1,12 @@
 class Bacon {
+
+    init(shit) {
+        this.shit = shit;
+    }
+
   eat() {
-    print "Crunch crunch crunch!";
+    print this.shit;
   }
 }
 
-Bacon().eat(); // Prints "Crunch crunch crunch!".
+Bacon("hell").eat();
