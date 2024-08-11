@@ -23,7 +23,7 @@ import static io.github.darkaster.lox.TokenType.*;
  * declaration    → classDecl | funDecl | varDecl | statement ;
  * classDecl      → "class" IDENTIFIER "{" function* "}"
  * funDecl        → "fun" function;
- * function       → IDENTIFIER "(" parameters? ")" block ;
+ * function       → IDENTIFIER ("(" parameters? ")")? block ;
  * parameters     → IDENTIFIER ("," IDENTIFIER)* ;
  * expression     → assignment ;
  * assignment     → (call ".")? IDENTIFIER "=" assignment | logical_or ;
@@ -87,6 +87,12 @@ class Parser {
     private Stmt.Function function(String kind) {
         Token name = consume(IDENTIFIER, "Expect %s name.".formatted(kind));
         List<Token> params = new ArrayList<>();
+
+        if (match(LEFT_BRACE)) {
+            List<Stmt> body = block();
+            return new Stmt.Getter(name, body);
+        }
+
         consume(LEFT_PAREN, "Expected '(' after '%s' declaration".formatted(kind));
 
         if (!check(RIGHT_PAREN)) {

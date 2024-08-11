@@ -12,6 +12,8 @@ abstract class Stmt {
 
         R visitFunctionStmt(Function stmt);
 
+        R visitGetterStmt(Getter stmt);
+
         R visitClassStmt(Class stmt);
 
         R visitIfStmt(If stmt);
@@ -65,6 +67,18 @@ abstract class Stmt {
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitFunctionStmt(this);
+        }
+    }
+
+    static class Getter extends Function {
+
+        public Getter(Token name, List<Stmt> body) {
+            super(name, List.of(), body);
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitGetterStmt(this);
         }
     }
 

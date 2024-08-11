@@ -150,6 +150,14 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Void visitGetterStmt(Stmt.Getter stmt) {
+        declare(stmt.name);
+        define(stmt.name);
+        resolveFunction(stmt, FunctionType.GETTER);
+        return null;
+    }
+
+    @Override
     public Void visitClassStmt(Stmt.Class stmt) {
         ClassType enclosingClass = currentClass;
         currentClass = ClassType.CLASS;
@@ -248,7 +256,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     private enum FunctionType {
-        NONE, FUNCTION, INITIALIZER, METHOD,
+        NONE, FUNCTION, INITIALIZER, METHOD, GETTER
     }
 
     private enum ClassType {

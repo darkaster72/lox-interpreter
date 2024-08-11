@@ -1,17 +1,12 @@
-class Bacon {
-
-    init(shit) {
-        this.shit = shit;
-    }
-
-  static eat() {
-    print "hello";
+class Circle {
+  init(radius) {
+    this.radius = radius;
   }
 
-  doIt() {
-    this.eat();
-    }
-
+  area {
+    return 3.141592653 * this.radius * this.radius;
+  }
 }
 
-Bacon("bacon").doIt();
+var circle = Circle(4);
+print circle.area; // Prints roughly "50.2655".

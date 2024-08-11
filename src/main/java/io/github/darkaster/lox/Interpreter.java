@@ -161,8 +161,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object visitGetExpr(Expr.Get expr) {
         var object = evaluate(expr.object);
         if (object instanceof LoxInstance loxInstance) {
-            return loxInstance.get(expr.name);
+            Object member = loxInstance.get(expr.name);
+            if (member instanceof LoxFunction function && function.isGetter()) {
+                return function.call(this, List.of());
+            }
+            return member;
         }
+
         throw new RuntimeError(expr.name, "Only instances have properties");
     }
 
@@ -272,7 +277,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        LoxCallable function = new LoxFunction(stmt, environment, false);
+        LoxCallable function = new LoxFunction(stmt, environment, false, false);
+        environment.define(stmt.name, function);
+        return null;
+    }
+
+    @Override
+    public Void visitGetterStmt(Stmt.Getter stmt) {
+        LoxCallable function = new LoxFunction(stmt, environment, false, true);
         environment.define(stmt.name, function);
         return null;
     }
@@ -283,7 +295,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.functions) {
-            methods.put(method.name.lexeme, new LoxFunction(method, environment, method.name.lexeme.equals("init")));
+            methods.put(method.name.lexeme, new LoxFunction(method, environment, method.name.lexeme.equals("init"), method instanceof Stmt.Getter));
         }
 
         LoxClass clazz = new LoxClass(stmt.name, methods);
