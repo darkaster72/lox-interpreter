@@ -75,7 +75,8 @@ class Parser {
         List<Stmt.Function> methods = new ArrayList<>();
 
         while (!(check(RIGHT_BRACE) || isAtEnd())) {
-            methods.add(function("method"));
+            if (match(STATIC)) methods.add(function("static"));
+            else methods.add(function("method"));
         }
 
         consume(RIGHT_BRACE, "Expected '}' after class block");

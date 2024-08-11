@@ -4,9 +4,14 @@ class Bacon {
         this.shit = shit;
     }
 
-  eat() {
-    print this.shit;
+  static eat() {
+    print "hello";
   }
+
+  doIt() {
+    this.eat();
+    }
+
 }
 
-Bacon("hell").eat();
+Bacon("bacon").doIt();
