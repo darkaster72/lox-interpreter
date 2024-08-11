@@ -3,16 +3,14 @@ package io.github.darkaster.lox;
 import java.util.List;
 
 public class LoxFunction implements LoxCallable {
-    private final Stmt.Function declaration;
-    private final Environment closure;
-    private final boolean isInitializer;
-    private final boolean isGetter;
+    protected final Stmt.Function declaration;
+    protected final Environment closure;
+    protected final boolean isInitializer;
 
-    public LoxFunction(Stmt.Function declaration, Environment closure, boolean isInitializer, boolean isGetter) {
+    public LoxFunction(Stmt.Function declaration, Environment closure, boolean isInitializer) {
         this.declaration = declaration;
         this.closure = closure;
         this.isInitializer = isInitializer;
-        this.isGetter = isGetter;
     }
 
     @Override
@@ -45,10 +43,7 @@ public class LoxFunction implements LoxCallable {
     public LoxFunction bind(LoxInstance loxInstance) {
         Environment env = new Environment(closure);
         env.define("this", loxInstance);
-        return new LoxFunction(declaration, env, isInitializer, isGetter);
+        return new LoxFunction(declaration, env, isInitializer);
     }
 
-    public boolean isGetter() {
-        return isGetter;
-    }
 }

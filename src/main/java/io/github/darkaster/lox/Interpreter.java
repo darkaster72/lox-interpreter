@@ -162,8 +162,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         var object = evaluate(expr.object);
         if (object instanceof LoxInstance loxInstance) {
             Object member = loxInstance.get(expr.name);
-            if (member instanceof LoxFunction function && function.isGetter()) {
-                return function.call(this, List.of());
+            if (member instanceof LoxGetter function) {
+                return function.call(this);
             }
             return member;
         }
@@ -277,14 +277,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        LoxCallable function = new LoxFunction(stmt, environment, false, false);
+        LoxCallable function = new LoxFunction(stmt, environment, false);
         environment.define(stmt.name, function);
         return null;
     }
 
     @Override
     public Void visitGetterStmt(Stmt.Getter stmt) {
-        LoxCallable function = new LoxFunction(stmt, environment, false, true);
+        LoxCallable function = new LoxFunction(stmt, environment, false);
         environment.define(stmt.name, function);
         return null;
     }
@@ -295,13 +295,20 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.functions) {
-            methods.put(method.name.lexeme, new LoxFunction(method, environment, method.name.lexeme.equals("init"), method instanceof Stmt.Getter));
+            methods.put(method.name.lexeme, createLoxFunction(method));
         }
 
         LoxClass clazz = new LoxClass(stmt.name, methods);
 
         environment.define(stmt.name, clazz);
         return null;
+    }
+
+    private LoxFunction createLoxFunction(Stmt.Function method) {
+        if (method instanceof Stmt.Getter getter) {
+            return new LoxGetter(getter, environment);
+        }
+        return new LoxFunction(method, environment, method.name.lexeme.equals("init"));
     }
 
     @Override
