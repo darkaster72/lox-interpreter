@@ -87,9 +87,10 @@ public class Scanner {
                     addToken(SLASH);
                 }
             }
-            case ' ', '\r', '\t', '\n' -> {
+            case ' ', '\r', '\t' -> {
                 // Ignore whitespace.
             }
+            case '\n' -> line++;
             case '"' -> string();
             default -> {
                 if (isDigit(c)) {
