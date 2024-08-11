@@ -21,7 +21,7 @@ import static io.github.darkaster.lox.TokenType.*;
  * returnStmt     → "return" expression? ";" ;
  * block          → "{" declaration* "}" ;
  * declaration    → classDecl | funDecl | varDecl | statement ;
- * classDecl      → "class" IDENTIFIER "{" function* "}"
+ * classDecl      → "class" IDENTIFIER ("<" IDENTIFIER )? "{" function* "}"
  * funDecl        → "fun" function;
  * function       → IDENTIFIER ("(" parameters? ")")? block ;
  * parameters     → IDENTIFIER ("," IDENTIFIER)* ;
@@ -70,9 +70,17 @@ class Parser {
     }
 
     private Stmt classDeclaration() {
-        Token name = consume(IDENTIFIER, "Identifier expected for class name");
-        consume(LEFT_BRACE, "Expected '{' for class block");
         List<Stmt.Function> methods = new ArrayList<>();
+        Expr.Variable superclass = null;
+
+        Token name = consume(IDENTIFIER, "Identifier expected for class name.");
+
+        if (match(LESS)) {
+            consume(IDENTIFIER, "Identifier  expected after '<'.");
+            superclass = new Expr.Variable(previous());
+        }
+
+        consume(LEFT_BRACE, "Expected '{' for class block.");
 
         while (!(check(RIGHT_BRACE) || isAtEnd())) {
             if (match(STATIC)) methods.add(function("static"));
@@ -81,7 +89,7 @@ class Parser {
 
         consume(RIGHT_BRACE, "Expected '}' after class block");
 
-        return new Stmt.Class(name, methods);
+        return new Stmt.Class(name, superclass, methods);
     }
 
     private Stmt.Function function(String kind) {

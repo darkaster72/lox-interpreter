@@ -6,11 +6,13 @@ import java.util.Map;
 public class LoxClass extends LoxInstance implements LoxCallable {
     private final Token name;
     private final Map<String, LoxFunction> methods;
+    private final LoxClass superclass;
 
-    public LoxClass(Token name, Map<String, LoxFunction> methods) {
+    public LoxClass(Token name, Map<String, LoxFunction> methods, LoxClass superclass) {
         super(null);
         this.name = name;
         this.methods = methods;
+        this.superclass = superclass;
     }
 
     public String toString() {
@@ -36,7 +38,10 @@ public class LoxClass extends LoxInstance implements LoxCallable {
 
     @Override
     public LoxFunction findMethod(String name) {
-        return methods.get(name);
+        LoxFunction method = methods.get(name);
+        if (method != null) return method;
+
+        return superclass.findMethod(name);
     }
 
 }

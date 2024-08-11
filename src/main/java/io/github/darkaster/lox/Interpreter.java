@@ -292,13 +292,22 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitClassStmt(Stmt.Class stmt) {
         environment.define(stmt.name, null);
+        LoxClass superclass = null;
+
+        if (stmt.superclass != null) {
+            if (environment.get(stmt.superclass.name) instanceof LoxClass superClazz) {
+                superclass = superClazz;
+            } else {
+                Lox.error(stmt.superclass.name, "Can only extend class");
+            }
+        }
 
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.functions) {
             methods.put(method.name.lexeme, createLoxFunction(method));
         }
 
-        LoxClass clazz = new LoxClass(stmt.name, methods);
+        LoxClass clazz = new LoxClass(stmt.name, methods, superclass);
 
         environment.define(stmt.name, clazz);
         return null;

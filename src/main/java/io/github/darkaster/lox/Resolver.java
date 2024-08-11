@@ -165,8 +165,11 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         declare(stmt.name);
         define(stmt.name);
 
+        if (stmt.superclass != null) resolve(stmt.superclass);
+
         beginScope();
         scopes.peek().put("this", true);
+
 
         for (Stmt.Function method : stmt.functions) {
             FunctionType declaration = FunctionType.METHOD;
