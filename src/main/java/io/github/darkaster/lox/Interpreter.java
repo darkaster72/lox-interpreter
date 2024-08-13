@@ -158,6 +158,20 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Object visitSuperExpr(Expr.Super expr) {
+        int distance = locals.get(expr);
+        LoxClass superclass = (LoxClass) environment.getAt(distance, expr.method.lexeme);
+        LoxFunction method = superclass.findMethod(expr.method.lexeme);
+
+        if (method == null) {
+            throw new RuntimeError(expr.method, "Undefined property '" + expr.method.lexeme + "'.");
+        }
+
+        LoxInstance object = (LoxInstance) environment.getAt(distance - 1, "this");
+        return method.bind(object);
+    }
+
+    @Override
     public Object visitGetExpr(Expr.Get expr) {
         var object = evaluate(expr.object);
         if (object instanceof LoxInstance loxInstance) {
@@ -205,7 +219,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private Object lookupVariable(Token name, Expr expr) {
         var distance = locals.get(expr);
         if (distance != null) {
-            return environment.getAt(distance, name);
+            return environment.getAt(distance, name.lexeme);
         }
         return environment.get(name);
     }
@@ -297,6 +311,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (stmt.superclass != null) {
             if (environment.get(stmt.superclass.name) instanceof LoxClass superClazz) {
                 superclass = superClazz;
+                environment = new Environment(environment);
+                environment.define("super", superclass);
             } else {
                 Lox.error(stmt.superclass.name, "Can only extend class");
             }
@@ -309,6 +325,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         LoxClass clazz = new LoxClass(stmt.name, methods, superclass);
 
+        if (superclass != null) environment = environment.enclosing;
         environment.define(stmt.name, clazz);
         return null;
     }

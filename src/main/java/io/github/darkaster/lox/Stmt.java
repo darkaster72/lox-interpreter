@@ -71,7 +71,6 @@ abstract class Stmt {
     }
 
     static class Getter extends Function {
-
         public Getter(Token name, List<Stmt> body) {
             super(name, List.of(), body);
         }

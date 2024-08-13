@@ -82,16 +82,13 @@ public class Lox {
         }
     }
 
-    private static void report(int line, String where,
-                               String message) {
-        System.err.println(
-                "[line " + line + "] Error" + where + ": " + message);
+    private static void report(int line, String where, String message) {
+        System.err.printf("[line %d] Error%s: %s%n", line, where, message);
         hadError = true;
     }
 
     public static void runtimeError(RuntimeError error) {
-        System.err.println(error.getMessage() +
-                "\n[line " + error.token.line + "]");
+        System.err.printf("%s\n[line %d]%n", error.getMessage(), error.token.line);
         hadRuntimeError = true;
     }
 }

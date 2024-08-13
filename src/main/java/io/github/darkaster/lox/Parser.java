@@ -36,7 +36,7 @@ import static io.github.darkaster.lox.TokenType.*;
  * unary          → ( "!" | "-" ) unary | call ;
  * call           → primary ( "(" arguments? ")" | "." IDENTIFIER)*;
  * arguments      → expression, ("," expression)*
- * primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+ * primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | "super" "." IDENTIFIER;
  * */
 class Parser {
     private final List<Token> tokens;
@@ -285,7 +285,7 @@ class Parser {
     }
 
     // syntax grammar
-    // primary  → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+    // primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | "super" "." IDENTIFIER;
     private Expr primary() {
         if (match(FALSE)) return new Expr.Literal(false);
         if (match(TRUE)) return new Expr.Literal(true);
@@ -295,8 +295,13 @@ class Parser {
 
         if (match(THIS)) return new Expr.This(previous());
 
-        if (match(IDENTIFIER)) return new Expr.Variable(previous());
+        if (match(SUPER)) {
+            Token keyword = previous();
+            Token method = consume(IDENTIFIER, "Expect Identifier after 'super.'");
+            return new Expr.Super(keyword, method);
+        }
 
+        if (match(IDENTIFIER)) return new Expr.Variable(previous());
 
         if (match(LEFT_PAREN)) {
             Expr expr = expression();

@@ -29,7 +29,7 @@ public class LoxFunction implements LoxCallable {
         try {
             interpreter.executeBlock(declaration.body, env);
         } catch (Return returnValue) {
-            if (isInitializer) return closure.getAt(0, new Token(TokenType.THIS, "this", null, declaration.name.line));
+            if (isInitializer) return closure.getAt(0, "this");
             return returnValue.value;
         }
         return null;

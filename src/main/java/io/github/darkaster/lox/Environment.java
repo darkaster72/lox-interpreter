@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Environment {
-    private final Environment enclosing;
+    final Environment enclosing;
     private final Map<String, Object> values = new HashMap<>();
 
     public Environment() {
@@ -45,8 +45,8 @@ public class Environment {
         throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
 
-    public Object getAt(Integer distance, Token name) {
-        return ancestor(distance).get(name);
+    public Object getAt(Integer distance, String name) {
+        return ancestor(distance).values.get(name);
     }
 
     private Environment ancestor(Integer distance) {
