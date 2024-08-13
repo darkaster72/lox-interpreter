@@ -12,6 +12,11 @@ class Circle < Shape {
   area {
     return 3.141592653 * this.radius * this.radius;
   }
+
+  display() {
+    super.display();
+    print "Circle";
+  }
 }
 
 var circle = Circle(4);

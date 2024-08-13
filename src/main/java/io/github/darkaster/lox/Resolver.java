@@ -66,8 +66,11 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitSuperExpr(Expr.Super expr) {
-        if (currentClass == ClassType.SUBCLASS) {
-            Lox.error(expr.keyword, "Can't use 'super' outside a subclass");
+        if (currentClass == ClassType.NONE) {
+            Lox.error(expr.keyword, "Can't use 'super' outside a class.");
+            return null;
+        } else if (currentClass == ClassType.CLASS) {
+            Lox.error(expr.keyword, "Can't use 'super' outside a subclass.");
             return null;
         }
         resolveLocal(expr, expr.keyword);

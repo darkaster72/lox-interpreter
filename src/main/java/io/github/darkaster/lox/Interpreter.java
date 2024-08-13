@@ -160,7 +160,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitSuperExpr(Expr.Super expr) {
         int distance = locals.get(expr);
-        LoxClass superclass = (LoxClass) environment.getAt(distance, expr.method.lexeme);
+        LoxClass superclass = (LoxClass) environment.getAt(distance, "super");
         LoxFunction method = superclass.findMethod(expr.method.lexeme);
 
         if (method == null) {
@@ -314,7 +314,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 environment = new Environment(environment);
                 environment.define("super", superclass);
             } else {
-                Lox.error(stmt.superclass.name, "Can only extend class");
+                new RuntimeError(stmt.superclass.name, "Can only extend class");
             }
         }
 

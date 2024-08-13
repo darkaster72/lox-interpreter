@@ -297,7 +297,8 @@ class Parser {
 
         if (match(SUPER)) {
             Token keyword = previous();
-            Token method = consume(IDENTIFIER, "Expect Identifier after 'super.'");
+            consume(DOT, "Expect '.' after super.");
+            Token method = consume(IDENTIFIER, "Expect identifier after 'super.'");
             return new Expr.Super(keyword, method);
         }
 
